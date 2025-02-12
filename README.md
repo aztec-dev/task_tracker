@@ -1,2 +1,2 @@
-# task_tracker
+# Task Tracker
 CLI Task tracker using python
