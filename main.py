@@ -8,12 +8,13 @@ import os
 
 FILE_NAME = 'tasks.json'
 
+# task object placeholder.
 tasks = {
-    "id": "1",
-    "description": "sample task",
-    "status" : "status",
-    "createdAt": "created at",
-    "updatedAt": "updated at"
+    "id": None,
+    "description": None,
+    "status" : None,
+    "createdAt": None,
+    "updatedAt": None,
 }
 
 tasks_to_json = json.dumps(tasks, indent=4)
@@ -32,20 +33,22 @@ def main():
 
     while option != "exit":
         if option == "list":
-            print(open_tasks(FILE_NAME))
+            print(list_tasks(FILE_NAME))
         elif option == f"add {task_name}":
             while task_name == "":
                 print("Incorrect task name")
         option = input("task-cli ")
     print("exit")
 
-def open_tasks(file_name):
+def list_tasks(file_name):
     """Displays a list of the current tasks within the file."""
-    # Check if file exists, if not => opens a readable file.
-    if not os.path.exists(file_name):
-        with open(file_name, "r") as task_file:
-            # Display data
-            data = json.load(task_file)
-            return data
+    # Check if file exists, if not => creates a read/write file.
+    with open(file_name, 'r') as out_file:
+        content = out_file.read()
+        if content.strip():
+            parsed_data = json.load(out_file)
+            return parsed_data
+        else:
+            return "No task to display. Consider running [add] to add a task."
 
 main()
