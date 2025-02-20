@@ -10,11 +10,11 @@ FILE_NAME = 'tasks.json'
 
 # task object placeholder.
 tasks = {
-    "id": None,
-    "description": None,
-    "status" : None,
-    "createdAt": None,
-    "updatedAt": None,
+    "id": 1,
+    "task": "placeholder",
+    "status" : "placeholder",
+    "createdAt": "placeholder",
+    "updatedAt": "placeholder",
 }
 
 tasks_to_json = json.dumps(tasks, indent=4)
@@ -33,22 +33,59 @@ def main():
 
     while option != "exit":
         if option == "list":
-            print(list_tasks(FILE_NAME))
-        elif option == f"add {task_name}":
-            while task_name == "":
-                print("Incorrect task name")
+            list_tasks(FILE_NAME)
+        elif option.startswith("add "):
+            task_name = option[4:]  # Extracts task
+            tasks["task"] = task_name
+            add_task(FILE_NAME, tasks)
         option = input("task-cli ")
     print("exit")
 
+def add_task(file_name, json_object):
+    """Adds a task to tasks.json based on user input"""
+    status, data = validate_file(file_name)
+    if status == True:
+        data.append(json_object)
+    else:
+        create_file(file_name)
+        data.append(json_object)
+    with open(file_name, 'w') as outfile:
+        json.dump(data, outfile, indent=4)
+    
+    print("Task added successfully")
+
 def list_tasks(file_name):
-    """Displays a list of the current tasks within the file."""
-    # Check if file exists, if not => creates a read/write file.
-    with open(file_name, 'r') as out_file:
-        content = out_file.read()
-        if content.strip():
-            parsed_data = json.load(out_file)
-            return parsed_data
+    """Reads from the file and lists the tasks."""
+    status, data = validate_file(file_name)
+    if status == True and len(data) != 0:
+        for task in data:
+            print(f'{task["id"]}: {task["task"]}')
+    elif data == None or data == 0:
+        print("You haven't added any tasks yet.")
+
+
+def validate_file(file_name):
+    """Validates the files existence and validates the data in the file."""
+    # Check if the file exists
+    if os.path.exists(file_name):
+        # Check if file is not empty
+        if os.path.getsize(file_name) != 0:
+            with open(file_name, 'r') as infile:
+                data = json.load(infile)
+            return True, data
         else:
-            return "No task to display. Consider running [add] to add a task."
+            new_data = create_file(file_name)
+            return True, new_data
+    else:
+        # Create a new file and populate it with an empty array.
+        new_data = create_file(file_name)
+        return True, new_data
+
+def create_file(file_name):
+    """Creates a new file containing an empty array."""
+    data = []
+    with open(file_name, 'w') as outfile:
+        json.dump(data, outfile)
+    return data
 
 main()
