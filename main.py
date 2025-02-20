@@ -10,7 +10,7 @@ FILE_NAME = 'tasks.json'
 
 # task object placeholder.
 tasks = {
-    "id": 1,
+    "id": 0,
     "task": "placeholder",
     "status" : "placeholder",
     "createdAt": "placeholder",
@@ -45,6 +45,7 @@ def add_task(file_name, json_object):
     """Adds a task to tasks.json based on user input"""
     status, data = validate_file(file_name)
     if status == True:
+        json_object["id"] += 1
         data.append(json_object)
     else:
         create_file(file_name)
@@ -52,7 +53,7 @@ def add_task(file_name, json_object):
     with open(file_name, 'w') as outfile:
         json.dump(data, outfile, indent=4)
     
-    print("Task added successfully")
+    print(f"Task added successfully (ID: {json_object["id"]})")
 
 def list_tasks(file_name):
     """Reads from the file and lists the tasks."""
@@ -60,7 +61,7 @@ def list_tasks(file_name):
     if status == True and len(data) != 0:
         for task in data:
             print(f'{task["id"]}: {task["task"]}')
-    elif data == None or data == 0:
+    elif len(data) == 0:
         print("You haven't added any tasks yet.")
 
 
