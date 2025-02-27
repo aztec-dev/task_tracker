@@ -30,9 +30,14 @@ def main():
         if option == "list":
             list_tasks(FILE_NAME)
         elif option.startswith("add "):
-            task_name = option[4:]  # Extracts task
+            task_name = option[4:]  # Extract task name
             add_task(FILE_NAME, task_name)
-            # print(task_name)
+        elif option.startswith("update "):
+            task_id = option[7:8]  # Extract task ID
+            updated_task = option[9:]
+            update_task(FILE_NAME, task_id, updated_task)
+            # print(task_id)
+            # print(updated_task)
         option = input("task-cli ")
     print("exit")
 
@@ -57,6 +62,23 @@ def add_task(file_name, task_name):
     else:
         pass
     print(f"Task added successfully (ID: {len(data)})")
+
+def update_task(file_name, task_id, updated_task):
+    """
+    Updates a task based on the task ID provided by the user.
+
+    Parameters:
+    file_name (string): Represents the file path
+    task_id (int): Represents the task ID
+    """
+    status = validate_file(file_name)
+    data = read_data(file_name)
+    task_offset = int(task_id) - 1
+    stripped_task = updated_task.strip('"')
+    data[task_offset].update({"task": stripped_task,"updatedAt": date.today().isoformat()})
+    if status:
+        with open(file_name, 'w') as file:
+            json.dump(data, file, indent=4)
 
 def list_tasks(file_name:str):
     """
