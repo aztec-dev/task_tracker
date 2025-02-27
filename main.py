@@ -5,17 +5,12 @@ Author: Azariah Pundari (aztec-dev)
 """
 import json
 import os
+from datetime import date
 
 FILE_NAME = 'tasks.json'
 
 # task object placeholder.
-tasks = {
-    "id": 0,
-    "task": "placeholder",
-    "status" : "placeholder",
-    "createdAt": "placeholder",
-    "updatedAt": "placeholder",
-}
+tasks = []
 
 tasks_to_json = json.dumps(tasks, indent=4)
 MENU = "add [task name/description] => adds a new task\n\
@@ -36,18 +31,18 @@ def main():
             list_tasks(FILE_NAME)
         elif option.startswith("add "):
             task_name = option[4:]  # Extracts task
-            tasks["task"] = task_name
-            add_task(FILE_NAME, tasks)
+            add_task(FILE_NAME, task_name)
+            # print(task_name)
         option = input("task-cli ")
     print("exit")
 
-def add_task(file_name, json_object):
+def add_task(file_name, task_name):
     """
     Adds a task to tasks.json based on user input
     
     Parameters:
     file_name (str): Name of the file to write data to.
-    json_object (dict): Python dict that is written into the file.
+    task_name (str): Name of the task.
 
     Returns:
     NA
@@ -55,25 +50,13 @@ def add_task(file_name, json_object):
     """
     status = validate_file(file_name)
     data = read_data(file_name)
-    if status == True:
-        json_object["id"] += 1
-        data.update(json_object)
-        with open(file_name, 'a+') as outfile:
-            outfile.seek(0, 2)
-            file_position = outfile.tell()
-
-            if file_position == 0:
-                outfile.write('[\n')
-            else:
-                outfile.seek(file_position - 1, 0)
-                last_char = outfile.read(1)
-
-                if last_char != ']':
-                    outfile.seek(file_position - 1, 0)
-                    outfile.write(',\n')
-            json.dump(data, outfile)
-            outfile.write('\n]')
-    print(f"Task added successfully (ID: {json_object["id"]})")
+    data.append({"id": len(data) + 1, "task": task_name, "createdAt": date.today().isoformat()})
+    if status:
+        with open(file_name, 'w') as file:
+            json.dump(data, file, indent=4)
+    else:
+        pass
+    print(f"Task added successfully (ID: {len(data)})")
 
 def list_tasks(file_name:str):
     """
@@ -88,14 +71,13 @@ def list_tasks(file_name:str):
     # Validate the file
     status = validate_file(file_name)
     # Read the data
-    data = read_data(file_name)
-    if status == True and len(data) != 0:
+    data = read_data(file_name) 
+    if status and len(data) != 0:
         # print(len(data))
         for task in data:
             print(f'{task["id"]}: {task["task"]}')
     else:
         print("You haven't added any tasks yet.")
-
 
 def validate_file(file_name:str):
     """
@@ -111,7 +93,7 @@ def validate_file(file_name:str):
     if os.path.exists(file_name):
         return True
     else:
-        create_file(file_name)
+        create_file(file_name, tasks)
         return True
     
 def read_data(file_name:str):
@@ -125,17 +107,14 @@ def read_data(file_name:str):
     object (dict): Data read from .json file
     """
     status = validate_file(file_name)
-    if status == True:
-        if os.stat(file_name).st_size == 0:
-            return {}  # Return an empty dictionary if the file is empty
-        else:
-            with open(file_name, 'r') as outfile:
-                data = json.load(outfile)
+    if status:
+        with open(file_name, 'r') as outfile:
+            data = json.load(outfile)
     return data
 
-def create_file(file_name:str):
+def create_file(file_name:str, default_struct:dict):
     """
-    Creates a new file containing an empty array.
+    Creates a new file containing a default structure to store data.
 
     Parameters:
     file_name (str): Name of the file to be validated.
@@ -143,7 +122,7 @@ def create_file(file_name:str):
     Returns:
     list: An empty list that is written into the new file.
     """
-    with open(file_name, 'x'):
-        pass
-    pass
+    with open(file_name, 'w') as file:
+        data = json.dump(default_struct, file, indent=4)
+    return data
 main()
