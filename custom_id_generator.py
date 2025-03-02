@@ -5,8 +5,9 @@ class CustomIdGenerator:
     def __str__(self):
         return f"{self.counter}"
     
-    def generate_task_id(self):
+    def generate_task_id(self, current_count):
         # Increment counter and return a unique ID
+        self.counter = current_count
         self.counter += 1
         return self.counter
 
