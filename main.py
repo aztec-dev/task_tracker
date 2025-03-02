@@ -62,9 +62,9 @@ def add_task(file_name, task_name):
     # Data processing
     created_date = datetime.now().strftime("%Y-%m-%d %H:%M")
     stripped_task = task_name.strip('"')
+    sequential_id = id_generator.generate_task_id(data[len(data) - 1]["id"])
 
-
-    data.append({"id": id_generator.generate_task_id(), "task": stripped_task, "createdAt": created_date})
+    data.append({"id": sequential_id, "task": stripped_task, "createdAt": created_date})
 
     if status:
         with open(file_name, 'w') as file:
