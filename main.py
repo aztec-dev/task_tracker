@@ -5,12 +5,13 @@ Author: Azariah Pundari (aztec-dev)
 """
 import json
 import os
-from datetime import date
-
+from datetime import datetime
+from custom_id_generator import CustomIdGenerator
 FILE_NAME = 'tasks.json'
 
 # task object placeholder.
 tasks = []
+id_generator = CustomIdGenerator()
 
 tasks_to_json = json.dumps(tasks, indent=4)
 MENU = "add [task name/description] => adds a new task\n\
@@ -20,11 +21,12 @@ list [status] => list all tasks based on status\n"
 
 
 def main():
-    """Main program."""
+    """
+    Behold, the program!
+    """
     print(MENU)
 
     option = input("task-cli ")
-    task_name = ""
 
     while option != "exit":
         if option == "list":
@@ -36,14 +38,15 @@ def main():
             task_id = option[7:8]  # Extract task ID
             updated_task = option[9:]
             update_task(FILE_NAME, task_id, updated_task)
-            # print(task_id)
-            # print(updated_task)
+        elif option.startswith("delete "):
+            task_id = option[7:]
+            delete_task(FILE_NAME, task_id)
         option = input("task-cli ")
     print("exit")
 
 def add_task(file_name, task_name):
     """
-    Adds a task to tasks.json based on user input
+    Adds a task to a file based on the users input.
     
     Parameters:
     file_name (str): Name of the file to write data to.
@@ -55,13 +58,20 @@ def add_task(file_name, task_name):
     """
     status = validate_file(file_name)
     data = read_data(file_name)
-    data.append({"id": len(data) + 1, "task": task_name, "createdAt": date.today().isoformat()})
+
+    # Data processing
+    created_date = datetime.now().strftime("%Y-%m-%d %H:%M")
+    stripped_task = task_name.strip('"')
+
+
+    data.append({"id": id_generator.generate_task_id(), "task": stripped_task, "createdAt": created_date})
+
     if status:
         with open(file_name, 'w') as file:
             json.dump(data, file, indent=4)
     else:
         pass
-    print(f"Task added successfully (ID: {len(data)})")
+    print(f"Task added successfully (ID: {str(id_generator)})")
 
 def update_task(file_name, task_id, updated_task):
     """
@@ -70,15 +80,50 @@ def update_task(file_name, task_id, updated_task):
     Parameters:
     file_name (string): Represents the file path
     task_id (int): Represents the task ID
+
+    Returns:
+    NA
     """
     status = validate_file(file_name)
     data = read_data(file_name)
+
+    # Data processing
+    updated_date = datetime.now().strftime("%Y-%m-%d %H:%M")
     task_offset = int(task_id) - 1
     stripped_task = updated_task.strip('"')
-    data[task_offset].update({"task": stripped_task,"updatedAt": date.today().isoformat()})
+    
+    data[task_offset].update({"task": stripped_task,"updatedAt": updated_date})
+
     if status:
         with open(file_name, 'w') as file:
             json.dump(data, file, indent=4)
+    print(f"Task {task_id} updated successfully.")
+
+def delete_task(file_name:str, task_id):
+    """
+    Deletes a task from the tasks.json file based on the ID given.
+
+    Parameters:
+    file_name (str): Name of the file to overwrite data.
+    task_id (int): Represents the task ID
+
+    Returns:
+    NA
+    """
+    status = validate_file(file_name)
+    data = read_data(file_name)
+
+    for i in range(len(data)):
+        if data[i]["id"] == int(task_id):
+            data.pop(i)
+            break
+
+    if status:
+        # data[0]["id"] = 
+        with open(file_name, 'w') as file:
+            json.dump(data, file, indent=4)
+    
+    print(f"Task {task_id} deleted successfully.")
 
 def list_tasks(file_name:str):
     """
@@ -90,12 +135,10 @@ def list_tasks(file_name:str):
     Returns:
     prints a string.
     """
-    # Validate the file
     status = validate_file(file_name)
-    # Read the data
-    data = read_data(file_name) 
+    data = read_data(file_name)
+
     if status and len(data) != 0:
-        # print(len(data))
         for task in data:
             print(f'{task["id"]}: {task["task"]}')
     else:
@@ -129,6 +172,7 @@ def read_data(file_name:str):
     object (dict): Data read from .json file
     """
     status = validate_file(file_name)
+
     if status:
         with open(file_name, 'r') as outfile:
             data = json.load(outfile)
