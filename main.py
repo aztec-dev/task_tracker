@@ -13,7 +13,6 @@ FILE_NAME = 'tasks.json'
 tasks = []
 id_generator = CustomIdGenerator()
 
-tasks_to_json = json.dumps(tasks, indent=4)
 MENU = "add [task name/description] => adds a new task\n\
 update [ID] => updates a task based on ID\n\
 delete [ID] => deletes a task based on ID\n\
@@ -44,7 +43,7 @@ def main():
         option = input("task-cli ")
     print("exit")
 
-def add_task(file_name, task_name):
+def add_task(file_name:str, task_name:str):
     """
     Adds a task to a file based on the users input.
     
@@ -54,7 +53,7 @@ def add_task(file_name, task_name):
 
     Returns:
     NA
-    prints a status message.
+    Displays a status message.
     """
     status = validate_file(file_name)
     data = read_data(file_name)
@@ -73,16 +72,18 @@ def add_task(file_name, task_name):
         pass
     print(f"Task added successfully (ID: {str(id_generator)})")
 
-def update_task(file_name, task_id, updated_task):
+def update_task(file_name:str, task_id:str, updated_task:str):
     """
     Updates a task based on the task ID provided by the user.
 
     Parameters:
     file_name (string): Represents the file path
-    task_id (int): Represents the task ID
+    task_id (str): Represents the task ID
+    updated_task (str): Represents the updated task that the user inputs
 
     Returns:
     NA
+    Displays a status message.
     """
     status = validate_file(file_name)
     data = read_data(file_name)
@@ -99,13 +100,13 @@ def update_task(file_name, task_id, updated_task):
             json.dump(data, file, indent=4)
     print(f"Task {task_id} updated successfully.")
 
-def delete_task(file_name:str, task_id):
+def delete_task(file_name:str, task_id:str):
     """
     Deletes a task from the tasks.json file based on the ID given.
 
     Parameters:
     file_name (str): Name of the file to overwrite data.
-    task_id (int): Represents the task ID
+    task_id (str): Represents the task ID
 
     Returns:
     NA
