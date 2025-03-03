@@ -7,7 +7,8 @@ class CustomIdGenerator:
     
     def generate_task_id(self, current_count):
         # Increment counter and return a unique ID
-        self.counter = current_count
+        if current_count is not None:
+            self.counter = current_count
         self.counter += 1
         return self.counter
 
