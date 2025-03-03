@@ -93,10 +93,12 @@ def update_task(file_name:str, task_id:str, updated_task:str):
 
     # Data processing
     updated_date = datetime.now().strftime("%Y-%m-%d %H:%M")
-    task_offset = int(task_id) - 1
+    task_offset = int(task_id)
     stripped_task = updated_task.strip('"')
-    
-    data[task_offset].update({"task": stripped_task,"updatedAt": updated_date})
+    # print(data[2]["id"])
+    for task in data:
+        if task["id"] == task_offset:
+            task.update({"task": stripped_task,"updatedAt": updated_date})
 
     if status:
         with open(file_name, 'w') as file:
