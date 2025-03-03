@@ -1,7 +1,6 @@
 """
 Title: Task Tracker
 Date: 10/02/2025
-Author: Azariah Pundari (aztec-dev)
 """
 import json
 import os
@@ -61,8 +60,12 @@ def add_task(file_name:str, task_name:str):
     # Data processing
     created_date = datetime.now().strftime("%Y-%m-%d %H:%M")
     stripped_task = task_name.strip('"')
-    sequential_id = id_generator.generate_task_id(data[len(data) - 1]["id"])
 
+    if len(data) > 0:
+        sequential_id = id_generator.generate_task_id(data[len(data) - 1]["id"])
+    else:
+        # Handle case when data is empty
+        sequential_id = id_generator.generate_task_id(0)
     data.append({"id": sequential_id, "task": stripped_task, "createdAt": created_date})
 
     if status:
