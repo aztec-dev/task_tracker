@@ -83,7 +83,6 @@ def add_task(file_name:str, task_name:str, status:bool, data:list):
     data (list): Represents a list of dictionary objects that represents a task.
 
     Returns:
-    NA
     Displays a status message.
     """
 
@@ -116,8 +115,7 @@ def update_task(file_name:str, task_id:str, updated_task:str, status:bool, data:
     data (list): Represents a list of dictionary objects that represents a task.
 
     Returns:
-    NA
-    Displays a status message.
+    Displays a status complete message.
     """
 
     # Data processing
@@ -145,7 +143,7 @@ def delete_task(file_name:str, task_id:str, status:bool, data:list):
     data (list): Represents a list of dictionary objects that represents a task.
 
     Returns:
-    NA
+    Displays a status complete message.
     """
 
     for i in range(len(data)):
@@ -169,7 +167,7 @@ def list_tasks(task_status:str, status:bool, data:list):
     data (list): Represents a list of dictionary objects that represents a task.
 
     Returns:
-    prints a list of tasks and filters them based on status.
+    Displays a list of tasks and filters them based on status.
     """
 
     if status and len(data) != 0:
@@ -195,6 +193,9 @@ def sort_tasks(tasks:dict, condition:str):
     parameters:
     tasks (dict): The dictionary of tasks that will be sorted
     condition (str): The condition to sort by
+
+    Returns:
+    Displays a list of sorted tasks.
     """
     sorted_tasks = sorted(tasks, key=lambda item: item["status"] != condition)
     for task in sorted_tasks:
