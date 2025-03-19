@@ -175,17 +175,17 @@ def list_tasks(task_status:str, status:bool, data:list):
             for task in data:
                 print(f'{task["id"]}: {task["task"]} {task["status"]}')
         elif task_status == "done":
-            sort_tasks(data, "done")
+            list_condition(data, "done")
         elif task_status == "todo":
-            sort_tasks(data, "todo")
+            list_condition(data, "todo")
         elif task_status == "in-progress":
-            sort_tasks(data, "in-progress")
+            list_condition(data, "in-progress")
     else:
         print("You haven't added any tasks yet.")
 
-def sort_tasks(tasks:dict, condition:str):
+def list_condition(tasks:list, condition:str):
     """
-    Sorts the list of tasks depending on the condtion:
+    List the tasks depending on the condtion:
     --- todo
     --- in progress
     --- done
@@ -195,11 +195,12 @@ def sort_tasks(tasks:dict, condition:str):
     condition (str): The condition to sort by
 
     Returns:
-    Displays a list of sorted tasks.
+    list: List of tasks based on condition specified.
     """
-    sorted_tasks = sorted(tasks, key=lambda item: item["status"] != condition)
-    for task in sorted_tasks:
-        print(f'{task["id"]}: {task["task"]} {task["status"]}')
+    required_tasks = [task for task in tasks if task["status"] == condition]
+    for x in range(len(required_tasks)):
+        print(f"{required_tasks[x]["id"]}: {required_tasks[x]["task"]} {required_tasks[x]["status"]}")
+    
 
 def validate_file(file_name:str):
     """
