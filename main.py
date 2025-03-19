@@ -62,8 +62,10 @@ def main():
             task_id = option[7:]
             delete_task(FILE_NAME, task_id, status, data)
         elif option.startswith("mark-"):
-            condition = option[5:]
-            mark_task(condition)
+            condition = option[5:-2]
+            id_offset = len(option) - 1
+            task_id = option[id_offset::]
+            mark_task(FILE_NAME, data, status, condition, task_id)
         else:
             print("\033[1;31;48mIncorrect command. Try again.\033")
         option = prompt(
@@ -122,7 +124,6 @@ def update_task(file_name:str, task_id:str, updated_task:str, status:bool, data:
     updated_date = datetime.now().strftime("%Y-%m-%d %H:%M")
     task_offset = int(task_id)
     stripped_task = updated_task.strip('"')
-    # print(data[2]["id"])
     for task in data:
         if task["id"] == task_offset:
             task.update({"task": stripped_task,"updatedAt": updated_date})
@@ -220,14 +221,23 @@ def validate_file(file_name:str):
         create_file(file_name, tasks)
         return True
 
-def mark_task(file_name:str, condition:str):
+def mark_task(file_name:str, data:list, status:bool, condition:str, task_id:str):
     """
     Marks a task as in-progress or done.
 
     Paramteres:
     file_name (str): Name of the file containing 
     """
-    
+    id_offset = int(task_id)
+    for task in data:
+        if task["id"] == id_offset:
+            task.update({"status": condition})
+
+    if status:
+        with open(file_name, 'w') as file:
+            json.dump(data, file, indent=4)
+    print(f"Task {task_id} updated successfully.")
+
 def read_data(file_name:str):
     """
     Read the data from a file
