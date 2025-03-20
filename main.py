@@ -105,7 +105,7 @@ def add_task(file_name:str, task_name:str, status:bool, data:list, colour_code:l
     
     # Handle task null case
     if task_name == "":
-        print("\033[1;31;33mTask name not specified. Please add a task name.\033[0m")
+        print("\33[1;31;33mTask name not specified. Please add a task name.\33[0m")
     else:
         data.append({"id": sequential_id, "task": stripped_task, "createdAt": created_date, "status": task_status, "colourCode": red})
         print(f"\33[1;31;92mTask added successfully (ID: {id_generator})\33[0m")
