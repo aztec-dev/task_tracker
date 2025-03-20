@@ -124,14 +124,19 @@ def update_task(file_name:str, task_id:str, updated_task:str, status:bool, data:
     updated_date = datetime.now().strftime("%Y-%m-%d %H:%M")
     task_offset = int(task_id)
     stripped_task = updated_task.strip('"')
-    for task in data:
-        if task["id"] == task_offset:
-            task.update({"task": stripped_task,"updatedAt": updated_date})
-
-    if status:
-        with open(file_name, 'w') as file:
-            json.dump(data, file, indent=4)
-    print(f"Task {task_id} updated successfully.")
+    length_of_data = len(data)
+    if length_of_data != 0:
+        for task in data:
+            if task_offset == 0:
+                print("ID can't be 0")
+            elif task["id"] == task_offset:
+                task.update({"task": stripped_task,"updatedAt": updated_date})
+        if status:
+            with open(file_name, 'w') as file:
+                json.dump(data, file, indent=4)
+        print(f"Task {task_id} updated successfully.")
+    else:
+        print("You haven't added any tasks. Please add a task.")
 
 def delete_task(file_name:str, task_id:str, status:bool, data:list):
     """
