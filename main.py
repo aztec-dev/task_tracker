@@ -23,7 +23,7 @@ style = Style.from_dict({
 MENU = "\033[33madd [task name/description]\033[0m => adds a new task\n\
 \033[33mupdate [ID] [task name/description]\033[0m => updates a task based on ID\n\
 \033[33mdelete [ID]\033[0m => deletes a task based on ID\n\
-\033[33mmark-[condition]\033[0m => mark a task as done, todo, in-progress\n\
+\033[33mmark-[condition]\033[0m => mark a task as done or in-progress\n\
 \033[33mlist [status]\033[0m => list all tasks based on status\n"
 
 
@@ -199,7 +199,8 @@ def list_condition(tasks:list, condition:str):
     list: List of tasks based on condition specified.
     """
     required_tasks = [task for task in tasks if task["status"] == condition]
-    for x in range(len(required_tasks)):
+    length_of_tasks = len(required_tasks)
+    for x in range(length_of_tasks):
         print(f"{required_tasks[x]["id"]}: {required_tasks[x]["task"]} {required_tasks[x]["status"]}")
     
 
@@ -229,14 +230,19 @@ def mark_task(file_name:str, data:list, status:bool, condition:str, task_id:str)
     file_name (str): Name of the file containing 
     """
     id_offset = int(task_id)
-    for task in data:
-        if task["id"] == id_offset:
-            task.update({"status": condition})
-
-    if status:
-        with open(file_name, 'w') as file:
-            json.dump(data, file, indent=4)
-    print(f"Task {task_id} updated successfully.")
+    if len(data) != 0:
+        if id_offset != 0:
+            for task in data:
+                if task["id"] == id_offset:
+                    task.update({"status": condition})
+                if status:
+                    with open(file_name, 'w') as file:
+                        json.dump(data, file, indent=4)
+                print(f"Task {task_id} updated successfully.")
+        else:
+            print("ID can't be 0")
+    else:
+        print("No tasks found. Please add a task")
 
 def read_data(file_name:str):
     """
