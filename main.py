@@ -44,7 +44,7 @@ def main():
         if option.startswith("list"):
             condition = option[5:]  # Extract condition
             list_tasks(condition, status, data)
-        elif option.startswith("add "):
+        elif option.startswith("add"):
             task_name = option[4:]  # Extract task name
             add_task(FILE_NAME, task_name, status, data)
         elif option.startswith("update"):
@@ -93,17 +93,23 @@ def add_task(file_name:str, task_name:str, status:bool, data:list):
     stripped_task = task_name.strip('"')
     task_status = "todo"
 
+    # Handle ID increments
     if len(data) > 0:
         sequential_id = id_generator.generate_task_id(data[len(data) - 1]["id"])
     else:
         # Handle case when data is empty
         sequential_id = id_generator.generate_task_id(0)
-    data.append({"id": sequential_id, "task": stripped_task, "createdAt": created_date, "status": task_status})
+    
+    # Handle task null case
+    if task_name == "":
+        print("Task name not specified. Please add a task name.")
+    else:
+        data.append({"id": sequential_id, "task": stripped_task, "createdAt": created_date, "status": task_status})
+        print(f"Task added successfully (ID: {id_generator})")
 
     if status:
         with open(file_name, 'w') as file:
             json.dump(data, file, indent=4)
-    print(f"Task added successfully (ID: {str(id_generator)})")
 
 def update_task(file_name:str, task_id:str, updated_task:str, status:bool, data:list):
     """
