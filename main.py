@@ -9,6 +9,7 @@ from prompt_toolkit.styles import Style
 from datetime import datetime
 from custom_id_generator import CustomIdGenerator
 FILE_NAME = 'tasks.json'
+COLOUR_CODES = ["[1;31;92m", "[1;31;33m","[1;31;48m"]  # Green, Yellow, Red
 
 # task object placeholder.
 tasks = []
@@ -46,7 +47,7 @@ def main():
             list_tasks(condition, status, data)
         elif option.startswith("add"):
             task_name = option[4:]  # Extract task name
-            add_task(FILE_NAME, task_name, status, data)
+            add_task(FILE_NAME, task_name, status, data, COLOUR_CODES)
         elif option.startswith("update"):
             task_id = option[7:8]  # Extract task ID
             updated_task = option[9:]  # Extract updated task name
@@ -65,16 +66,16 @@ def main():
             condition = option[5:-2]
             id_offset = len(option) - 1
             task_id = option[id_offset::]
-            mark_task(FILE_NAME, data, status, condition, task_id)
+            mark_task(FILE_NAME, data, status, condition, task_id, COLOUR_CODES)
         else:
-            print("\033[1;31;48mIncorrect command. Try again.\033")
+            print("\33[1;31;48mIncorrect command. Try again.\33[0m")
         option = prompt(
         [('class:propmt', 'task-cli '), ('class:input', '')],
         style=style
         )
     print("exit")
 
-def add_task(file_name:str, task_name:str, status:bool, data:list):
+def add_task(file_name:str, task_name:str, status:bool, data:list, colour_code:list):
     """
     Adds a task to a file based on the users input.
     
@@ -87,6 +88,8 @@ def add_task(file_name:str, task_name:str, status:bool, data:list):
     Returns:
     Displays a status message.
     """
+    
+    red = colour_code[2]  # Default colour for tasks with todo
 
     # Data processing
     created_date = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -102,10 +105,10 @@ def add_task(file_name:str, task_name:str, status:bool, data:list):
     
     # Handle task null case
     if task_name == "":
-        print("Task name not specified. Please add a task name.")
+        print("\033[1;31;33mTask name not specified. Please add a task name.\033[0m")
     else:
-        data.append({"id": sequential_id, "task": stripped_task, "createdAt": created_date, "status": task_status})
-        print(f"Task added successfully (ID: {id_generator})")
+        data.append({"id": sequential_id, "task": stripped_task, "createdAt": created_date, "status": task_status, "colourCode": red})
+        print(f"\33[1;31;92mTask added successfully (ID: {id_generator})\33[0m")
 
     if status:
         with open(file_name, 'w') as file:
@@ -140,9 +143,9 @@ def update_task(file_name:str, task_id:str, updated_task:str, status:bool, data:
         if status:
             with open(file_name, 'w') as file:
                 json.dump(data, file, indent=4)
-        print(f"Task {task_id} updated successfully.")
+        print(f"\33[1;31;92mTask {task_id} updated successfully.\33[0m")
     else:
-        print("You haven't added any tasks. Please add a task.")
+        print("\33[1;31;48mYou haven't added any tasks. Please add a task.\33[0m")
 
 def delete_task(file_name:str, task_id:str, status:bool, data:list):
     """
@@ -167,7 +170,7 @@ def delete_task(file_name:str, task_id:str, status:bool, data:list):
         with open(file_name, 'w') as file:
             json.dump(data, file, indent=4)
     
-    print(f"Task {task_id} deleted successfully.")
+    print(f"\33[1;31;92mTask {task_id} deleted successfully.\33[0m")
 
 def list_tasks(task_status:str, status:bool, data:list):
     """
@@ -183,19 +186,20 @@ def list_tasks(task_status:str, status:bool, data:list):
     """
 
     if status and len(data) != 0:
-        if task_status == "":
-            for task in data:
-                print(f'{task["id"]}: {task["task"]} {task["status"]}')
+        if task_status == "" or len(task_status) == 0:
+            list_condition(data, False)
         elif task_status == "done":
             list_condition(data, "done")
         elif task_status == "todo":
             list_condition(data, "todo")
         elif task_status == "in-progress":
             list_condition(data, "in-progress")
+        else:
+            print("\33[1;31;48mIncorrect status provided.\33[0m")
     else:
-        print("You haven't added any tasks yet.")
+        print("\33[1;31;33mYou haven't added any tasks yet.\33[0m")
 
-def list_condition(tasks:list, condition:str):
+def list_condition(tasks:list, condition):
     """
     List the tasks depending on the condtion:
     --- todo
@@ -209,10 +213,17 @@ def list_condition(tasks:list, condition:str):
     Returns:
     list: List of tasks based on condition specified.
     """
-    required_tasks = [task for task in tasks if task["status"] == condition]
-    length_of_tasks = len(required_tasks)
-    for x in range(length_of_tasks):
-        print(f"{required_tasks[x]["id"]}: {required_tasks[x]["task"]} {required_tasks[x]["status"]}")
+
+    # Display tasks if no condition is provided
+    if condition == False:
+        for x in range(len(tasks)):
+            print(f"{int(tasks[x]["id"])}: \33{tasks[x]["colourCode"]}{tasks[x]["task"]} {tasks[x]["status"]}\33[0m")
+    else:
+            required_tasks = [task for task in tasks if task["status"] == condition]
+            length_of_tasks = len(required_tasks)
+                # Display tasks for condition provided
+            for x in range(length_of_tasks):
+                print(f"{required_tasks[x]["id"]}: \33{required_tasks[x]["colourCode"]}{required_tasks[x]["task"]}\33[0m")
     
 
 def validate_file(file_name:str):
@@ -233,27 +244,34 @@ def validate_file(file_name:str):
         create_file(file_name, tasks)
         return True
 
-def mark_task(file_name:str, data:list, status:bool, condition:str, task_id:str):
+def mark_task(file_name:str, data:list, status:bool, condition:str, task_id:str, colour_codes:list):
     """
     Marks a task as in-progress or done.
 
     Paramteres:
     file_name (str): Name of the file containing 
     """
+
+    green = colour_codes[0]  # Colour code for tasks that are done
+    yellow = colour_codes[1]  # Colour code for tasks that are in-progress
+    red = colour_codes[2]
     id_offset = int(task_id)
     if len(data) != 0:
         if id_offset != 0:
             for task in data:
                 if task["id"] == id_offset:
-                    task.update({"status": condition})
+                    if condition == "done":
+                        task.update({"status": condition, "colourCode": green})
+                    elif condition == "in-progress":
+                        task.update({"status": condition, "colourCode": yellow})
                 if status:
                     with open(file_name, 'w') as file:
                         json.dump(data, file, indent=4)
-                print(f"Task {task_id} updated successfully.")
+            print(f"\33{green}{task_id} updated successfully.\33[0m")
         else:
-            print("ID can't be 0")
+            print(f"\33{red}ID can't be 0")
     else:
-        print("No tasks found. Please add a task")
+        print(f"\33{yellow}No tasks found. Please add a task\33[0m")
 
 def read_data(file_name:str):
     """
