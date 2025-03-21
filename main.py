@@ -18,7 +18,7 @@ id_generator = CustomIdGenerator()
 # cli style and input style
 style = Style.from_dict({
     'prompt': 'bg:green fg:white', 
-    '': 'fg:yellow'
+    '': 'fg:white'
 })
 
 MENU = "\033[33madd [task name/description]\033[0m => adds a new task\n\
@@ -73,7 +73,7 @@ def main():
         [('class:propmt', 'task-cli '), ('class:input', '')],
         style=style
         )
-    print("exit")
+    print("Exit. <cool sound effects>")
 
 def add_task(file_name:str, task_name:str, status:bool, data:list, colour_code:list):
     """
@@ -255,8 +255,8 @@ def mark_task(file_name:str, data:list, status:bool, condition:str, task_id:str,
     green = colour_codes[0]  # Colour code for tasks that are done
     yellow = colour_codes[1]  # Colour code for tasks that are in-progress
     red = colour_codes[2]
-    id_offset = int(task_id)
     if len(data) != 0:
+        id_offset = int(task_id)
         if id_offset != 0:
             for task in data:
                 if task["id"] == id_offset:
